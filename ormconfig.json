@@ -1,0 +1,12 @@
+{
+    "name":"default",
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "daloniil",
+    "password": "daloniil",
+    "database": "typeGraphQl",
+    "synchronize":true,
+    "loading":true,
+    "entities":["src/entity/*.*"]
+}
