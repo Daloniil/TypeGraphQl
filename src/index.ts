@@ -1,29 +1,41 @@
 import "reflect-metadata";
+import { buildSchema } from "type-graphql";
 import { ApolloServer } from "apollo-server-express";
-import Express from "express";
-import { buildSchema, formatArgumentValidationError } from "type-graphql";
+import express, { Express } from "express";
+import { TaskResolver } from "./resolvers/task";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import { createConnection } from "typeorm";
-import { RegisterResolver } from "./modules/user/Register";
+import { Task } from "./entity/Task";
 
 const main = async () => {
-  await createConnection();
-
-  const schema = await buildSchema({
-    resolvers: [RegisterResolver],
+  await createConnection({
+    type: "postgres",
+    database: "typeGraphQl",
+    entities: [Task],
+    logging: true,
+    synchronize: true,
+    username: "daloniil",
+    password: "daloniil",
+    port: 5432,
   });
 
   const apolloServer = new ApolloServer({
-    schema,
-    formatError: formatArgumentValidationError,
+    schema: await buildSchema({
+      resolvers: [TaskResolver],
+      validate: false,
+    }),
+    plugins: [ApolloServerPluginLandingPageGraphQLPlayground],
   });
 
-  const app = Express();
+  await apolloServer.start();
+  const app: Express = express();
 
   apolloServer.applyMiddleware({ app });
 
-  app.listen(4000, () => {
-    console.log("server started on http://localhost:4000/graphql");
-  });
+  app.get("/", (_res, res) => res.send("hello world"));
+
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => console.log(`Server start on port ${PORT}`));
 };
 
-main();
+main().catch((err) => console.error(err));
