@@ -28,7 +28,7 @@ export class TaskResolver {
     }
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Task)
   createTask(@Arg("title", () => String) title: string): Promise<Task> {
     return Task.create({ title, isComplete: false }).save();
   }
